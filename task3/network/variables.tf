@@ -14,12 +14,12 @@ variable "internet_gateway" {
 }
 
 variable "subnet" {
-  type        =  map
+  type        = map(any)
   description = "public subnets + private subnets"
 }
 
 variable "route_table" {
-  type        = map
+  type        = map(any)
   description = "route table"
 }
 
@@ -34,11 +34,11 @@ variable "public_cidr" {
 }
 
 variable "route" {
-  type        = map
+  type        = map(any)
   description = "route for route table"
 }
 
 variable "subnet_association" {
-  type        = map
+  type        = map(any)
   description = "route for route table"
 }
