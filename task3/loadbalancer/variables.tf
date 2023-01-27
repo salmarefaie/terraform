@@ -28,3 +28,15 @@ variable "publicSubnet2" {
   description = "public subnet id 2"
 
 }
+
+# variable "publicEc2ID1" {
+#   type        = string
+#   description = "public ec2 id 1"
+# }
+
+# variable "publicEc2ID2" {
+#   type        = string
+#   description = "public ec2 id 2"
+
+# }
+

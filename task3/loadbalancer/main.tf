@@ -16,12 +16,8 @@ resource "aws_lb_target_group" "alb-target-group" {
 resource "aws_lb_target_group_attachment" "alb-target-group1" {
   target_group_arn = aws_lb_target_group.alb-target-group.arn
   for_each = var.instanceID
-  target_id        = each.value
+  target_id = each.value
 }
-# resource "aws_lb_target_group_attachment" "alb-target-group2" {
-#   target_group_arn = aws_lb_target_group.alb-target-group.arn
-#   target_id        = "i-0cbe9d5dd6e026be5"
-# }
 
 # security group for ec2
 resource "aws_security_group" "loadbalancer_sg" {

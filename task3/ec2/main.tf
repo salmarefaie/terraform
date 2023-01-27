@@ -32,34 +32,49 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
-# data source ami
-data "aws_ami" "ubuntu-image" {
-  most_recent      = true
-  owners           = ["099720109477"]  
+# # data source ami
+# data "aws_ami" "ubuntu-image" {
+#   most_recent      = true
+#   owners           = ["099720109477"]  
 
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
-  }
-}
+#   filter {
+#     name   = "name"
+#     values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
+#   }
+# }
 
 # ec2
 resource "aws_instance" "public-ec2" {
-  ami                         = data.aws_ami.ubuntu-image.image_id
+  ami                         =  "ami-00874d747dde814fa"                                   # data.aws_ami.ubuntu-image.image_id
   for_each = var.ec2_subnet
   instance_type               = var.ec2_type
   subnet_id                   = each.value
   associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
 
-
   user_data = <<-EOF
   #!/usr/bin/bash
-   sudo apt update -y
-   sudo apt install nginx -y
-   sudo systemctl enable --now nginx
+  sudo apt update -y
+  sudo apt install nginx -y
+  sudo systemctl enable --now nginx
   EOF
 
+  # provisioner "local-exec" {
+  #       command = "echo ${each.key} ${self.private_ip} >> ./all-ips.txt"
+  #       command = "echo ${each.key} ${self.public_ip} >> ./all-ips.txt"
+
+      
+  #   }
+  #   provisioner "remote-exec" {
+  #       inline = [
+  #       "sudo apt update -y",
+  #       "sudo apt install -y nginx",
+  #       # "echo 'server { \n listen 80 default_server; \n  listen [::]:80 default_server; \n  server_name _; \n  location / { \n  proxy_pass http://${var.alb-2-dns-name}; \n  } \n}' > default",
+  #       # "sudo mv default /etc/nginx/sites-enabled/default",
+  #       "sudo systemctl stop nginx",
+  #       "sudo systemctl start nginx"
+  #       ]
+  #   }
   tags = {
     Name = each.key
   }

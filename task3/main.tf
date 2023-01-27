@@ -59,6 +59,9 @@ module "loadbalancer" {
   publicSubnet1 = module.network.public_subnet1_id
   publicSubnet2 = module.network.public_subnet2_id
 
+  # publicEc2ID1 = module.ec2.public_ec2_id_1      
+  # publicEc2ID2 = module.ec2.public_ec2_id_2
+
   }
 
 
