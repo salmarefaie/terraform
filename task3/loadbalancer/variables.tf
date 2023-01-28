@@ -61,3 +61,22 @@ variable target_group {
   description = "target group arguments"
 }
 
+variable load_balancer_type {
+  type        = string
+  description = "application load balancer"
+}
+
+variable ip_address_type {
+  type        = string
+  description = "ipv4"
+}
+
+variable load_balancer {
+  type        = map
+  description = "load balancer arguments"
+}
+
+variable listener {
+  type        = map
+  description = "listener gor load balancer arguments"
+}

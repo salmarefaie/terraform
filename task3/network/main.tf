@@ -36,6 +36,7 @@ resource "aws_subnet" "subnet" {
   for_each          = var.subnet
   cidr_block        = each.value.cidr
   availability_zone = each.value.zone
+
   tags = {
     Name = each.key
   }

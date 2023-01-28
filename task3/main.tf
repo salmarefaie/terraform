@@ -50,7 +50,7 @@ module "ec2" {
     "private_ec2_2" = module.network.private_subnet2_id
   }
 
-  nlb_dns=module.loadbalancer.dns
+  private_alb_dns = module.loadbalancer.privateDns
 
 }
 
@@ -60,10 +60,10 @@ module "loadbalancer" {
   target_type = "instance"
 
   instanceID = {
-    "public_ec2_id_1" = {targetGroup = module.loadbalancer.alp_target_group_id ,ec2 = module.ec2.public_ec2_id_1},
-    "public_ec2_id_2" = {targetGroup = module.loadbalancer.alp_target_group_id  ,ec2 = module.ec2.public_ec2_id_2},
-    "private_ec2_id_1" = {targetGroup = module.loadbalancer.nlp_target_group_id ,ec2 = module.ec2.private_ec2_id_1},
-    "private_ec2_id_2" = {targetGroup = module.loadbalancer.nlp_target_group_id ,ec2 = module.ec2.private_ec2_id_2}
+    "public_ec2_id_1"  = { targetGroup = module.loadbalancer.public_alp_target_group_id , ec2 = module.ec2.public_ec2_id_1 },
+    "public_ec2_id_2"  = { targetGroup = module.loadbalancer.public_alp_target_group_id , ec2 = module.ec2.public_ec2_id_2 },
+    "private_ec2_id_1" = { targetGroup = module.loadbalancer.private_alp_target_group_id , ec2 = module.ec2.private_ec2_id_1 },
+    "private_ec2_id_2" = { targetGroup = module.loadbalancer.private_alp_target_group_id , ec2 = module.ec2.private_ec2_id_2 }
   }
 
   security_group = "loadBalancer security group"
@@ -71,16 +71,28 @@ module "loadbalancer" {
   port80         = 80
   protocol       = "HTTP"
 
-  publicSubnet1 = module.network.public_subnet1_id
-  publicSubnet2 = module.network.public_subnet2_id
+  publicSubnet1  = module.network.public_subnet1_id
+  publicSubnet2  = module.network.public_subnet2_id
   privateSubnet1 = module.network.private_subnet1_id
   privateSubnet2 = module.network.private_subnet2_id
 
   target_group = {
-    "alb-target-group" = "HTTP"
-    "nlb-target-group" = "HTTP"
+    "name1" = "publicAlb-target-group" 
+    "name2" = "privateAlb-target-group" 
+  }
+  
+  load_balancer_type = "application"
+  ip_address_type = "ipv4"
+
+  load_balancer = {
+    "publicAlb" = { subnets = [ module.network.public_subnet1_id, module.network.public_subnet2_id], internal = false },
+    "privateAlb" = { subnets = [ module.network.private_subnet1_id, module.network.private_subnet2_id ], internal = true }
   }
 
+  listener = {
+    "public_alb"  = { targetGroupArn = module.loadbalancer.public_alp_target_group_id ,  loadBalancerArn = module.loadbalancer.public_load_balancer_id },
+    "private_alb" = { targetGroupArn = module.loadbalancer.private_alp_target_group_id , loadBalancerArn = module.loadbalancer.private_load_balancer_id }
+  }
 }
 
 

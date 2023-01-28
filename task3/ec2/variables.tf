@@ -33,6 +33,7 @@ variable "private_ec2_subnet" {
   description = "instance arguments"
 }
 
-variable "nlb_dns" {
-
+variable "private_alb_dns" {
+  type        = string
+  description = "private alb dns"
 }

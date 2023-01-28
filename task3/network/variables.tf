@@ -38,6 +38,7 @@ variable "route" {
   description = "route for route table"
 }
 
+
 variable "subnet_association" {
   type        = map(any)
   description = "route for route table"

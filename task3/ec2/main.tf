@@ -32,7 +32,7 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
-# # data source ami
+# # data source ami 
 # data "aws_ami" "image" {
 #   most_recent      = true
 #   owners           = ["amazon"]  
@@ -53,16 +53,31 @@ resource "aws_instance" "public-ec2" {
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
   key_name = "key"
 
+  tags = {
+    Name = each.key
+  }
+
+  #public ip
+  provisioner "local-exec" {
+        command = "echo 'public ip for ${each.key}: ${self.public_ip}' >> ./all-ips.txt"   
+    }
+  
+  #private ip
+  provisioner "local-exec" {
+        command = "echo 'private ip for ${each.key}: ${self.private_ip}' >> ./all-ips.txt"   
+    }
+
   provisioner "remote-exec" {
         inline = [
         "sudo apt update -y",
         "sudo apt install -y nginx",
-        "echo 'server { \n listen 80 default_server; \n  listen [::]:80 default_server; \n  server_name _; \n  location / { \n  proxy_pass http://${var.nlb_dns}; \n  } \n}' > default",
+        "echo 'server { \n listen 80 default_server; \n  listen [::]:80 default_server; \n  server_name _; \n  location / { \n  proxy_pass http://${var.private_alb_dns}; \n  } \n}' > default",
         "sudo mv default /etc/nginx/sites-enabled/default",
         "sudo systemctl stop nginx",
         "sudo systemctl start nginx"
         ]
     }
+       
     connection {
         type = "ssh"
         host = self.public_ip
@@ -71,9 +86,6 @@ resource "aws_instance" "public-ec2" {
         timeout = "4m"
     }
     
-  tags = {
-    Name = each.key
-  }
 }
 
 
@@ -87,14 +99,39 @@ resource "aws_instance" "private-ec2" {
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
 
   user_data = <<-EOF
-  #!/usr/bin/bash
+  #!/bin/bash
   sudo apt update -y
-  sudo apt install nginx -y
-  sudo systemctl enable --now nginx
-  echo "hello from private network " >/var/www/html/index.html
+  sudo apt install apache2 -y
+  sudo systemctl start apache2
+  sudo systemctl enable apache2
   EOF
 
   tags = {
     Name = each.key
   }
+
+  # private ip
+  provisioner "local-exec" {
+        command = "echo 'private ip for ${each.key}: ${self.private_ip}' >> ./all-ips.txt"   
+    }
+
+# # basion host
+# provisioner "remote-exec" {
+#   inline = [
+#         "sudo apt update -y",
+#         "sudo apt install apache2 -y",
+#         "sudo systemctl start apache2",
+#         "sudo systemctl enable apache2"
+#         ]       
+#     }
+# connection {
+#         type = "ssh"
+#         host = self.private_ip 
+#         user = "ubuntu"
+#         private_key = file("./key.pem")
+#         bastion_host = aws_instance.public-ec2["public_ec2_1"].id
+#         bastion_user = "ubuntu"
+#         bastion_host_key = file("./key.pem")
+#       } 
+
 }

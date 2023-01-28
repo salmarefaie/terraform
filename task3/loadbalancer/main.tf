@@ -2,9 +2,9 @@
 resource "aws_lb_target_group" "target-group" {
   target_type = var.target_type  
   for_each = var.target_group             
-  name        = each.key
+  name        = each.value
   port        = var.port80
-  protocol    = each.value
+  protocol    = var.protocol
   vpc_id      = var.vpcID
   
   health_check {
@@ -48,49 +48,27 @@ resource "aws_security_group" "loadbalancer_sg" {
 
 #load balancer
 resource "aws_lb" "alb" {
-  load_balancer_type = "application"
-  name               = "alb"
-  internal           = false     
-  ip_address_type = "ipv4"
+  load_balancer_type = var.load_balancer_type
+  for_each = var.load_balancer
+  name               = each.key
+  internal           = each.value.internal     
+  ip_address_type = var.ip_address_type
 
   security_groups    = [aws_security_group.loadbalancer_sg.id]
-  subnets            = [ var.publicSubnet1,var.publicSubnet2 ]
+  subnets            = each.value.subnets
 
 }
 
 # listner
 resource "aws_lb_listener" "alb_listner" {
-  load_balancer_arn = aws_lb.alb.arn
+  for_each = var.listener
+  load_balancer_arn = each.value.loadBalancerArn
   port              = var.port80
   protocol          = var.protocol
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.target-group["alb-target-group"].arn
-  }
-}
-
-#load balancer
-resource "aws_lb" "nlb" {
-  load_balancer_type = "application"
-  name               = "nlb"
-  internal           = true     
-  ip_address_type = "ipv4"
-
-  security_groups    = [aws_security_group.loadbalancer_sg.id]
-  subnets            = [ var.privateSubnet1,var.privateSubnet2 ]
-
-}
-
-# listner
-resource "aws_lb_listener" "nlb_listner" {
-  load_balancer_arn = aws_lb.nlb.arn
-  port              = var.port80
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.target-group["nlb-target-group"].arn
+    target_group_arn = each.value.targetGroupArn
   }
 }
 
@@ -105,17 +83,4 @@ resource "aws_lb_listener" "nlb_listner" {
 
 
 
-# # target group
-# resource "aws_lb_target_group" "alb-target-group" {
-#   target_type = var.target_type               
-#   name        = "alb-target-group"
-#   port        = var.port80
-#   protocol    = var.protocol
-#   vpc_id      = var.vpcID
-  
-#   health_check {
-#     path = "/"
-#     port = var.port80
-#   }
-# }
 
