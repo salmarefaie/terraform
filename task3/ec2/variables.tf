@@ -13,12 +13,26 @@ variable "vpcID" {
   description = "vpc id"
 }
 
+variable "ami" {
+  type        = string
+  description = "ami for ec2"
+}
+
 variable "ec2_type" {
   type        = string
   description = "instance type"
 }
 
-variable "ec2_subnet" {
+variable "public_ec2_subnet" {
   type        = map
   description = "instance arguments"
+}
+
+variable "private_ec2_subnet" {
+  type        = map
+  description = "instance arguments"
+}
+
+variable "nlb_dns" {
+
 }

@@ -26,17 +26,38 @@ variable "publicSubnet1" {
 variable "publicSubnet2" {
   type        = string
   description = "public subnet id 2"
+}
+
+variable "privateSubnet1" {
+  type        = string
+  description = "private subnet id 1"
+}
+
+variable "privateSubnet2" {
+  type        = string
+  description = "private subnet id 2"
+
+}
+variable "port80" {
+  type        = number
+  description = "port 80"
 
 }
 
-# variable "publicEc2ID1" {
-#   type        = string
-#   description = "public ec2 id 1"
-# }
+variable "target_type" {
+  type        = string
+  description = "type is instance (default)"
 
-# variable "publicEc2ID2" {
-#   type        = string
-#   description = "public ec2 id 2"
+}
 
-# }
+variable "protocol" {
+  type        = string
+  description = "protocol is http"
+
+}
+
+variable target_group {
+  type        = map
+  description = "target group arguments"
+}
 
