@@ -20,7 +20,7 @@ resource "aws_lb_target_group_attachment" "ec2-target-group" {
   target_id = each.value.ec2
 }
 
-# security group for ec2
+# security group for load balancer
 resource "aws_security_group" "loadbalancer_sg" {
   name        = var.security_group
   description = var.security_group
